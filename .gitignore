@@ -1,0 +1,40 @@
+# Lattice Diamond generated directories
+impl*/
+synthesis/
+simulation/
+
+# Generated implementation files
+*.bit
+*.jed
+*.svf
+
+# Reports / intermediate files
+*.rpt
+*.log
+*.tmp
+*.bak
+
+# Database / synthesis intermediate files
+*.ngo
+*.ngd
+*.ncd
+*.prf
+*.twr
+
+# Editor/system junk
+.DS_Store
+Thumbs.db
+
+#other simulator
+work/
+work/uart
+
+#transcript
+transcript
+
+.wfl
+.html
+.ccl
+.xml
+.ini
+.dir/
