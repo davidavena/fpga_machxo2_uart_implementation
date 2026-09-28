@@ -1,0 +1,1 @@
+define_clock {n:oscillator_clock} -freq 38.0
