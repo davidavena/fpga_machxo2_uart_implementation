@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-import uart_pkg::*;
+import uart_types_pkg::*;
 
 module system_top_tb();
 	logic clock;
@@ -15,12 +15,13 @@ module system_top_tb();
 		.PARITY(EVEN),
 		.CLOCK_FREQ(38_000_000)
 	) uart_tx_controller (
-		.TX(TX),
-		.RESET(RESET),
-		.CLOCK(clock),
-		.DATA(data),
-		.TRANSMIT(TRANSMIT),
-		.READY(READY)
+		.clock_i(clock),
+		.reset_i(RESET),
+		.transmit_flag_i(TRANSMIT),
+		.data_byte_i(data),
+		
+		.uart_tx_o(TX),
+		.ready_flag_o(READY)
 	);
 
 	initial begin

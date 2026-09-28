@@ -1,4 +1,4 @@
-package uart_pkg;
+package uart_types_pkg;
 
 	typedef enum logic [1:0] {
 		NONE,

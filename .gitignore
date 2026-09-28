@@ -50,3 +50,4 @@ reportview.xml
 .setting.ini
 .run_manager.ini
 uart_communication_stack.ccl
+.recovery
