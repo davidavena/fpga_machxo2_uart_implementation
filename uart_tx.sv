@@ -39,8 +39,7 @@ always_comb begin
 			if (transmit_flag_i == 1'b1) begin
 				start_fast_trigger = 1'b1;
 				next_state = FSM_START;
-			end 
-			else begin
+			end else begin
 				start_fast_trigger = '0;
 				next_state = FSM_IDLE;
 			end
@@ -56,12 +55,10 @@ always_comb begin
 			if (bit_index == 3'd7) begin
 				if (PARITY == NONE) begin
 					next_state = FSM_STOP;
-				end
-				else begin
+				end else begin
 					next_state = FSM_PARITY;
 				end
-			end
-			else begin
+			end else begin
 				next_state = FSM_DATA;
 			end
 		end
@@ -70,8 +67,7 @@ always_comb begin
 			next_state = FSM_STOP;
 			if (PARITY == EVEN) begin
 				uart_tx_o = ^latched_data_byte;
-			end
-			else begin
+			end else begin
 				uart_tx_o = ~^latched_data_byte;
 			end
 		end
@@ -90,12 +86,10 @@ always_ff @(posedge clock_i) begin
 		bit_index <= '0;
 		baud_counter <= '0;
 		latched_data_byte <= '0;
-	end
-	else begin
+	end else begin
 		if (baud_counter < CLOCKS_PER_BIT && ready_flag_o == 0 && start_fast_trigger != 1) begin
 			baud_counter <= baud_counter + 1'd1;
-		end
-		else begin
+		end else begin
 			if (next_state == FSM_START) begin
 				latched_data_byte <= data_byte_i;
 			end
@@ -105,8 +99,7 @@ always_ff @(posedge clock_i) begin
 				FSM_DATA: begin
 					if (bit_index == 3'd7) begin
 						bit_index <= '0;
-					end
-					else begin
+					end else begin
 						bit_index <= bit_index + 1'd1;
 					end
 				end
