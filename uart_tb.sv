@@ -14,7 +14,7 @@ module uart_tb();
 	
 	uart_tx #(
 		.BAUD_RATE(9600),
-		.PARITY(EVEN),
+		.PARITY(NONE),
 		.CLOCK_FREQ(38_000_000)
 	) uart_tx_controller (
 		.clock_i(clock),
@@ -34,7 +34,7 @@ module uart_tb();
 	
 	uart_rx #(
 		.BAUD_RATE(9600),
-		.PARITY(EVEN),
+		.PARITY(NONE),
 		.CLOCK_FREQ(38_000_000)
 	) uart_rx_controller (
 		.clock_i(clock),
@@ -49,50 +49,41 @@ module uart_tb();
 
 	initial begin
 		clock = 0;
-		RESET = 1;
-		tx_data = 8'd37;
-		transmit_flag = 0;
-		#1_000
 		RESET = 0;	
 		#1_000
 		RESET = 1;
-		
-		#5_000
-		transmit_flag = 1;
-		#50
-		transmit_flag = 0;
-		
-		#2_000_000
-		
-		tx_data = 8'd187;
-		transmit_flag = 1;
-		#50
-		transmit_flag = 0;
-		
-		#2_000_000
-		
-		tx_data = 8'd156;
-		transmit_flag = 1;
-		#50
-		transmit_flag = 0;
-		
-		#2_000_000
-		
-		tx_data = 8'd87;
-		transmit_flag = 1;
-		#50
-		transmit_flag = 0;
 		
 		#20_000_000
 		$finish;
 	end
 	
-	always_ff @(posedge clock) begin
-		if (data_ready_flag_o && data_valid_flag_o) begin
-			if (tx_data == rx_data) begin
-				TEST_GOOD = 1;
-			end else begin
-				TEST_GOOD = 0;
+	always_comb begin
+		if (data_ready_flag_o && data_valid_flag_o && tx_data == rx_data) begin
+			TEST_GOOD = 1;
+		end else begin
+			TEST_GOOD = 0;
+		end
+	end
+	
+	logic [7:0] bytes_to_send [0:7] = {23,54,11,243,100,5,68, 184};
+	logic [3:0] counter = 0;
+	
+	logic [2:0] hold_time = 0;
+
+	always_ff @(posedge clock) begin		
+		if (RESET) begin
+			if (ready_flag && hold_time == 0 && counter < 7) begin
+				tx_data <= bytes_to_send[counter];
+				transmit_flag <= 1;
+				hold_time <= 1;
+				counter <= counter + 1;
+			end else if (hold_time != 0) begin
+				hold_time <= hold_time + 1;
+			end
+			
+			if (hold_time == 1) begin
+				hold_time <= 0;
+				transmit_flag <= 0;
 			end
 		end
 	end
