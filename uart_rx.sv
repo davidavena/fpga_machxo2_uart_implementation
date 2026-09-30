@@ -44,7 +44,7 @@ always_comb begin
 			next_state = FSM_DATA;
 		end
 		FSM_DATA: begin
-			if (bit_index == 7) begin
+			if (bit_index == 8) begin
 				if (PARITY == NONE) begin
 					next_state = FSM_STOP;
 				end
@@ -99,45 +99,42 @@ always_ff @(posedge clock_i) begin
 					delayTriggered <= 1;
 					baud_counter <= CLOCKS_PER_BIT;
 				end
+				else if (next_state == FSM_STOP && delayTriggered && baud_counter == CLOCKS_PER_BIT / 2) begin
+					delayTriggered <= '0;
+					baud_counter <= CLOCKS_PER_BIT;
+				end
 			end
 			else begin
-				if (bit_index == 8 && next_state == FSM_STOP && delayTriggered == 1) begin
-					delayTriggered <= '0;
-					baud_counter <= CLOCKS_PER_BIT / 2;
-				end
-				else begin	
-					uart_state <= next_state;
-					baud_counter <= '0;
-					case (uart_state)
-						FSM_STOP: begin
-							start_bit_triggered <= '0;
+				uart_state <= next_state;
+				baud_counter <= '0;
+				case (uart_state)
+					FSM_STOP: begin
+						start_bit_triggered <= '0;
+					end
+					FSM_DATA: begin
+						data_byte_o[bit_index] = current_bit;
+						bit_index <= bit_index + 1'd1;
+					end
+					FSM_PARITY: begin
+						automatic logic parity = ^data_byte_o;
+						if (PARITY == ODD && current_bit == parity) begin
+							data_valid_flag_o = '0;
 						end
-						FSM_DATA: begin
-							data_byte_o[bit_index] = current_bit;
-							bit_index <= bit_index + 1'd1;
+						else if (PARITY == EVEN && current_bit != parity) begin
+							data_valid_flag_o = '0;
 						end
-						FSM_PARITY: begin
-							automatic logic parity = ^data_byte_o;
-							if (PARITY == ODD && current_bit == parity) begin
-								data_valid_flag_o = '0;
-							end
-							else if (PARITY == EVEN && current_bit != parity) begin
-								data_valid_flag_o = '0;
-							end
-							bit_index <= '0;
+						bit_index <= '0;
+					end
+					FSM_STOP: begin
+						bit_index <= '0;
+						if (current_bit == 1) begin
+							data_ready_flag_o = 1;
+							data_valid_flag_o = 1;
+						end else begin
+							data_valid_flag_o = '0;
 						end
-						FSM_STOP: begin
-							bit_index <= '0;
-							if (current_bit == 1) begin
-								data_ready_flag_o = 1;
-								data_valid_flag_o = 1;
-							end 
-							else begin
-								data_valid_flag_o = '0;
-							end
-						end
-					endcase
-				end
+					end
+				endcase
 			end
 		end
 	end
