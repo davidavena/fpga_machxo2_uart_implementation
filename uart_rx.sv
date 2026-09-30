@@ -119,6 +119,7 @@ always_ff @(posedge clock_i) begin
 						end
 					end
 					FSM_STOP: begin
+						delayTriggered <= 1'd0;
 						start_bit_triggered <= '0;
 						data_ready_flag_o = 1'd1;
 						if (current_bit && correct_parity_bit) begin	
