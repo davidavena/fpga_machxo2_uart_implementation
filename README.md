@@ -2,6 +2,8 @@
 
 Personal first RTL design project, implemented in SystemVerilog for Lattice MachXO2 FPGAs.
 
+Big portion of project is simulation, but the best/stable system will be tested on actual hardware if possible.
+
 ## Hardware
 
 - FPGA: LCMXO2-1200HC-4TG100I
