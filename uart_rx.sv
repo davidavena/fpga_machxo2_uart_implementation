@@ -15,7 +15,7 @@ module uart_rx #(
 );
 
 localparam int 					CLOCKS_PER_BIT = (CLOCK_FREQ / BAUD_RATE) - 1;
-localparam int 					COUNTER_WIDTH = (CLOCKS_PER_BIT <= 1) ? 1 : $clog2(CLOCKS_PER_BIT);
+localparam int 					COUNTER_WIDTH = (CLOCKS_PER_BIT <= 1) ? 1 : $clog2(CLOCKS_PER_BIT + 1);
 
 logic [COUNTER_WIDTH - 1:0] 	baud_counter;
 
@@ -80,6 +80,8 @@ always_ff @(posedge clock_i) begin
 			uart_rx_previous_bit <= input_synchronizer;
 			if (uart_rx_previous_bit && !uart_rx_i) begin
 				start_bit_triggered <= 1'd1;
+				data_ready_flag_o <= '0;
+				data_valid_flag_o <= '0;
 				baud_counter <= CLOCKS_PER_BIT;
 			end
 		end else begin
