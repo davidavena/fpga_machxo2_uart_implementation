@@ -14,7 +14,7 @@ module uart_tb();
 	
 	uart_tx #(
 		.BAUD_RATE(9600),
-		.PARITY(NONE),
+		.PARITY(EVEN),
 		.CLOCK_FREQ(38_000_000)
 	) uart_tx_controller (
 		.clock_i(clock),
@@ -30,10 +30,11 @@ module uart_tb();
 	logic [7:0] rx_data;
 	logic data_ready_flag_o;
 	logic data_valid_flag_o;
+	logic TEST_GOOD;
 	
 	uart_rx #(
 		.BAUD_RATE(9600),
-		.PARITY(NONE),
+		.PARITY(EVEN),
 		.CLOCK_FREQ(38_000_000)
 	) uart_rx_controller (
 		.clock_i(clock),
@@ -49,22 +50,51 @@ module uart_tb();
 	initial begin
 		clock = 0;
 		RESET = 1;
-		tx_data = 8'b10101010;
+		tx_data = 8'd37;
 		transmit_flag = 0;
-		
-		#5_000
-		RESET = 0;
-		
+		#1_000
+		RESET = 0;	
 		#1_000
 		RESET = 1;
 		
-		#1_000_000
+		#5_000
 		transmit_flag = 1;
-		#500
+		#50
 		transmit_flag = 0;
 		
-		#5_000_000
+		#2_000_000
+		
+		tx_data = 8'd187;
+		transmit_flag = 1;
+		#50
+		transmit_flag = 0;
+		
+		#2_000_000
+		
+		tx_data = 8'd156;
+		transmit_flag = 1;
+		#50
+		transmit_flag = 0;
+		
+		#2_000_000
+		
+		tx_data = 8'd87;
+		transmit_flag = 1;
+		#50
+		transmit_flag = 0;
+		
+		#20_000_000
 		$finish;
+	end
+	
+	always_ff @(posedge clock) begin
+		if (data_ready_flag_o && data_valid_flag_o) begin
+			if (tx_data == rx_data) begin
+				TEST_GOOD = 1;
+			end else begin
+				TEST_GOOD = 0;
+			end
+		end
 	end
 	
 	always #13.158 clock = ~clock;
