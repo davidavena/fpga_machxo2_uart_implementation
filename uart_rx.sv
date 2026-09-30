@@ -82,6 +82,7 @@ always_ff @(posedge clock_i) begin
 				start_bit_triggered <= 1'd1;
 				data_ready_flag_o <= '0;
 				data_valid_flag_o <= '0;
+				data_byte_o <= '0;
 				baud_counter <= CLOCKS_PER_BIT;
 			end
 		end else begin
@@ -93,7 +94,7 @@ always_ff @(posedge clock_i) begin
 							delayTriggered <= 1'd1;
 							baud_counter <= CLOCKS_PER_BIT / 2'd2;
 						end
-					end
+					end	
 				endcase
 			end else begin
 				uart_state <= next_state;
