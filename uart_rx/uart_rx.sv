@@ -6,7 +6,7 @@ module uart_rx #(
 	parameter int 				CLOCK_FREQ 	= 2_080_000
 ) (
 	input logic 				clock_i,
-	input logic 				reset_i,
+	input logic 				reset_n_i,
 	input logic					uart_rx_i,
 	
 	output logic [7:0] 		data_byte_o,
@@ -65,7 +65,7 @@ end
 
 always_ff @(posedge clock_i) begin
 	// RESET CONDITION
-	if (!reset_i) begin
+	if (!reset_n_i) begin
 		bit_index <= '0;
 		start_bit_triggered <= '0;
 		delayTriggered <= '0;
