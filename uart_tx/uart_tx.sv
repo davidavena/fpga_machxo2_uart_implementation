@@ -6,7 +6,8 @@ module uart_tx #(
 	parameter int 				CLOCK_FREQ 	= 2_080_000
 ) (
 	input logic 				clock_i,
-	input logic 				reset_i,
+	input logic 				reset_n_i,
+	input logic 				module_enable_i,
 	input logic 				transmit_flag_i,
 	input logic [7:0] 			data_byte_i,
 
@@ -81,29 +82,31 @@ end
 
 always_ff @(posedge clock_i) begin
 	// RESET CONDITION
-	if (!reset_i) begin
+	if (!reset_n_i) begin
 		uart_state <= FSM_IDLE;
 		bit_index <= '0;
 		baud_counter <= '0;
 		latched_data_byte <= '0;
 	end else begin
-		if (baud_counter < CLOCKS_PER_BIT && ready_flag_o == 0 && start_fast_trigger != 1) begin
-			baud_counter <= baud_counter + 1'd1;
-		end else begin
-			if (next_state == FSM_START) begin
-				latched_data_byte <= data_byte_i;
-			end
-			baud_counter <= '0;
-			uart_state <= next_state;
-			case (uart_state)
-				FSM_DATA: begin
-					if (bit_index == 3'd7) begin
-						bit_index <= '0;
-					end else begin
-						bit_index <= bit_index + 1'd1;
-					end
+		if (module_enable_i) begin
+			if (baud_counter < CLOCKS_PER_BIT && ready_flag_o == 0 && start_fast_trigger != 1'd1) begin
+				baud_counter <= baud_counter + 1'd1;
+			end else begin
+				if (next_state == FSM_START) begin
+					latched_data_byte <= data_byte_i;
 				end
-			endcase
+				baud_counter <= '0;
+				uart_state <= next_state;
+				case (uart_state)
+					FSM_DATA: begin
+						if (bit_index == 3'd7) begin
+							bit_index <= '0;
+						end else begin
+							bit_index <= bit_index + 1'd1;
+						end
+					end
+				endcase
+			end
 		end
 	end
 end

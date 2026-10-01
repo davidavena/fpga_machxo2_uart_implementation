@@ -8,6 +8,7 @@ module uart_tx_controller_tb();
 	logic reset;
 	logic input_data_ready;
 	logic [7:0] input_data;
+	logic controller_enable;
 	
 	logic buffer_full_flag;
 	
@@ -21,12 +22,13 @@ module uart_tx_controller_tb();
 		.FIFO_BUFFER_SIZE(8)
 	) DUT (
 		.clock_i(clock),
-		.reset_i(reset),
+		.reset_n_i(reset),
 		.input_data_ready_i(input_data_ready),
 		.input_data_i(input_data),
 		.uart_tx_o(UART_TX_O),
 		.buffer_full_flag_o(buffer_full_flag),
-		.buffer_empty_flag_o()
+		.buffer_empty_flag_o(),
+		.controller_enable_i(controller_enable)
 	);
 	
 	logic [7:0] test_data [0:15];
@@ -35,6 +37,7 @@ module uart_tx_controller_tb();
 	initial begin
 		clock = 0;
 		reset = 0;
+		controller_enable = 1;
 		#500
 		reset = 1;
 		
