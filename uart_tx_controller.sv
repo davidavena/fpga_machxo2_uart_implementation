@@ -39,12 +39,13 @@ uart_tx #(
 );
 
 always_comb begin
+	automatic logic [$clog2(FIFO_BUFFER_SIZE) - 1 : 0] pointer_distance = (write_pointer >= read_pointer) ? write_pointer - read_pointer : 8 - (read_pointer - write_pointer);
 	buffer_empty_flag_o = '0;
 	buffer_full_flag_o = '0;
 	if (write_pointer == read_pointer) begin
 		buffer_empty_flag_o = 1'd1;
-	end 
-	if (write_pointer < read_pointer) begin
+	end 	
+	if (pointer_distance == FIFO_BUFFER_SIZE - 1) begin
 		buffer_full_flag_o = 1'd1;
 	end
 end
