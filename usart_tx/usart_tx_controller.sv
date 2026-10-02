@@ -1,6 +1,6 @@
-import uart_types_pkg::*;
+import usart_types_pkg::*;
 
-module uart_tx_controller #(
+module usart_tx_controller #(
 	parameter parity_config_t PARITY_CONFIG = NONE,	
 	parameter logic [31:0] BAUD_RATE = 9600,
 	parameter logic [31:0] CLOCK_FREQ = 2_080_00,
@@ -12,7 +12,7 @@ module uart_tx_controller #(
 	input logic input_data_ready_i,
 	input logic [7:0] input_data_i,
 	
-	output logic uart_tx_o,
+	output logic usart_tx_o,
 	output logic buffer_full_flag_o,
 	output logic buffer_empty_flag_o
 );
@@ -25,18 +25,18 @@ logic tx_ready_flag;
 logic tx_transmit_flag;
 logic [7:0] tx_data;
 
-uart_tx #(
+usart_tx #(
 	.BAUD_RATE(BAUD_RATE),
 	.PARITY(PARITY_CONFIG),
 	.CLOCK_FREQ(CLOCK_FREQ)
-) uart_tx_module (
+) usart_tx_module (
 	.clock_i(clock_i),
 	.reset_n_i(reset_n_i),
 	.module_enable_i(controller_enable_i),
 	.transmit_flag_i(tx_transmit_flag),
 	.data_byte_i(tx_data),
 	
-	.uart_tx_o(uart_tx_o),
+	.usart_tx_o(usart_tx_o),
 	.ready_flag_o(tx_ready_flag)
 );
 

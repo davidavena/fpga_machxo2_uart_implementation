@@ -1,8 +1,8 @@
 `timescale 1ns/1ps
 
-import uart_types_pkg::*;
+import usart_types_pkg::*;
 
-module uart_tx_controller_tb();
+module usart_tx_controller_tb();
 	
 	logic clock;
 	logic reset;
@@ -12,10 +12,10 @@ module uart_tx_controller_tb();
 	
 	logic buffer_full_flag;
 	
-	logic UART_TX_O;
+	logic usart_TX_O;
 	
 	
-	uart_tx_controller #(
+	usart_tx_controller #(
 		.PARITY_CONFIG(NONE),	
 		.BAUD_RATE(115_200),
 		.CLOCK_FREQ(38_000_000),
@@ -25,7 +25,7 @@ module uart_tx_controller_tb();
 		.reset_n_i(reset),
 		.input_data_ready_i(input_data_ready),
 		.input_data_i(input_data),
-		.uart_tx_o(UART_TX_O),
+		.usart_tx_o(usart_TX_O),
 		.buffer_full_flag_o(buffer_full_flag),
 		.buffer_empty_flag_o(),
 		.controller_enable_i(controller_enable)

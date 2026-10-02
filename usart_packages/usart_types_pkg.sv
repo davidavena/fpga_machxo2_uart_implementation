@@ -1,4 +1,4 @@
-package uart_types_pkg;
+package usart_types_pkg;
 
 	typedef enum logic [1:0] {
 		NONE,
@@ -12,6 +12,6 @@ package uart_types_pkg;
 		FSM_DATA,
 		FSM_PARITY,
 		FSM_STOP
-	} uart_state_t;
+	} usart_state_t;
 
 endpackage

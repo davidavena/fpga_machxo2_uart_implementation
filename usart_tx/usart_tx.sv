@@ -1,6 +1,6 @@
-import uart_types_pkg::*;
+import usart_types_pkg::*;
 
-module uart_tx #(
+module usart_tx #(
 	parameter int 				BAUD_RATE 	= 9600,
 	parameter parity_config_t 	PARITY 		= NONE,
 	parameter int 				CLOCK_FREQ 	= 2_080_000
@@ -11,7 +11,7 @@ module uart_tx #(
 	input logic 				transmit_flag_i,
 	input logic [7:0] 			data_byte_i,
 
-	output logic				uart_tx_o,
+	output logic				usart_tx_o,
 	output logic 				ready_flag_o
 );
 
@@ -24,17 +24,17 @@ logic [7:0] latched_data_byte;
 logic [2:0] bit_index;
 
 logic start_fast_trigger;
-uart_state_t uart_state;
-uart_state_t next_state;
+usart_state_t usart_state;
+usart_state_t next_state;
 
 always_comb begin
 	start_fast_trigger = '0;
 	ready_flag_o = '0;
-	uart_tx_o = 1'b1;
-	next_state = uart_state;
+	usart_tx_o = 1'b1;
+	next_state = usart_state;
 	
-	case (uart_state)
-		// UART IDLE
+	case (usart_state)
+		// usart IDLE
 		FSM_IDLE: begin
 			ready_flag_o = 1'b1;
 			if (transmit_flag_i == 1'b1) begin
@@ -45,14 +45,14 @@ always_comb begin
 				next_state = FSM_IDLE;
 			end
 		end
-		// UART START
+		// usart START
 		FSM_START: begin
-			uart_tx_o = '0;
+			usart_tx_o = '0;
 			next_state = FSM_DATA;
 		end
-		// UART DATA
+		// usart DATA
 		FSM_DATA: begin
-			uart_tx_o = latched_data_byte[bit_index];
+			usart_tx_o = latched_data_byte[bit_index];
 			if (bit_index == 3'd7) begin
 				if (PARITY == NONE) begin
 					next_state = FSM_STOP;
@@ -63,18 +63,18 @@ always_comb begin
 				next_state = FSM_DATA;
 			end
 		end
-		// UART PARITY BIT
+		// usart PARITY BIT
 		FSM_PARITY: begin
 			next_state = FSM_STOP;
 			if (PARITY == EVEN) begin
-				uart_tx_o = ^latched_data_byte;
+				usart_tx_o = ^latched_data_byte;
 			end else begin
-				uart_tx_o = ~^latched_data_byte;
+				usart_tx_o = ~^latched_data_byte;
 			end
 		end
-		// UART STOP
+		// usart STOP
 		FSM_STOP: begin
-			uart_tx_o = 1'b1;
+			usart_tx_o = 1'b1;
 			next_state = FSM_IDLE;
 		end
 	endcase
@@ -83,7 +83,7 @@ end
 always_ff @(posedge clock_i) begin
 	// RESET CONDITION
 	if (!reset_n_i) begin
-		uart_state <= FSM_IDLE;
+		usart_state <= FSM_IDLE;
 		bit_index <= '0;
 		baud_counter <= '0;
 		latched_data_byte <= '0;
@@ -96,8 +96,8 @@ always_ff @(posedge clock_i) begin
 					latched_data_byte <= data_byte_i;
 				end
 				baud_counter <= '0;
-				uart_state <= next_state;
-				case (uart_state)
+				usart_state <= next_state;
+				case (usart_state)
 					FSM_DATA: begin
 						if (bit_index == 3'd7) begin
 							bit_index <= '0;
