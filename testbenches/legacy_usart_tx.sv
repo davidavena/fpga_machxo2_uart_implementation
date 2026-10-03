@@ -20,7 +20,7 @@ usart_tx #(
 	.PARITY(NONE),
 	.CLOCK_FREQ(38000000),
     .CLOCK_POLARITY(CPOL_0),
-    .CLOCK_PHASE(CPHA_0),
+    .CLOCK_PHASE(CPHA_1),
     .TRANSMITTER_MODE(LEGACY_SYNCHRONOUS)
 ) usart_tx_module (
 	.clock_i(clock_i),
