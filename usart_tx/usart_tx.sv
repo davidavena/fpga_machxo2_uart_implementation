@@ -36,20 +36,17 @@ logic enable_sync_clock_driver;
 
 logic previous_usart_tx_clock;
 
-logic initial_bit_sync_delay;
-
 usart_state_t usart_state;
 usart_state_t next_usart_state;
 
 logic sync_clock_rising_edge;
 logic sync_clock_switched;
 
-
-`include "usart_tx_async.svh"
-`include "usart_tx_legacy.svh"
-`include "usart_tx_spi.svh"
-`include "usart_tx_sync.svh"
-`include "usart_tx_util_pkg.svh"
+`include "async/usart_tx_async.svh"
+`include "legacy/usart_tx_legacy.svh"
+`include "spi/usart_tx_spi.svh"
+`include "util/usart_tx_sync.svh"
+`include "util/usart_tx_util_pkg.svh"
 
 always_comb begin
 	always_comb_defaults();
@@ -70,24 +67,22 @@ always_comb begin
 	endcase
 end
 
-
-
 always_ff @(posedge clock_i) begin
 	// RESET CONDITION
+	set_clock_polarity_during_idle();
 	if (!reset_n_i) begin
 		initialize_on_reset();
 	end else begin
 		if (module_enable_i) begin
+			synchronous_clock_driver();
 			case (TRANSMITTER_MODE)
 				ASYNCHRONOUS_UART: begin
 				end
 				LEGACY_SYNCHRONOUS: begin
 					chip_enable_control();
-					set_clock_polarity_during_idle();
 				end
 				SPI_MASTER_SYNCHRONOUS: begin
 					chip_enable_control();
-					set_clock_polarity_during_idle();
 				end
 			endcase
 
@@ -100,11 +95,9 @@ always_ff @(posedge clock_i) begin
 							async_tx();
 						end
 						LEGACY_SYNCHRONOUS: begin
-							synchronous_clock_driver();
 							legacy_synchronous_tx();
 						end
 						SPI_MASTER_SYNCHRONOUS: begin
-							synchronous_clock_driver();
 							spi_master_tx();
 						end
 					endcase
@@ -117,7 +110,6 @@ always_ff @(posedge clock_i) begin
 							bit_index_handler();
 						end
 						LEGACY_SYNCHRONOUS: begin
-							if (next_usart_state == FSM_FIRST_BIT_INIT) baud_counter <= CLOCKS_PER_BIT / 2;
 							if (usart_state <= FSM_START) usart_state = next_usart_state;		
 						end
 					endcase
@@ -133,6 +125,7 @@ function void always_comb_defaults();
 	start_fast_trigger = '0;
 	ready_flag_o = '0;
 	next_usart_state = usart_state;
+	enable_sync_clock_driver = 0;
 endfunction
 
 // ALWAYS_FF FUNCTIONS
@@ -145,6 +138,7 @@ function void initialize_on_reset();
 	usart_tx_o <= 1'd1;
 	sync_clock_switched <= '0;
 	usart_tx_clock_o <= '0;
+	clock_counter <= '0;
 	chip_select_registers_o <= '{default:1'd1};
 endfunction
 

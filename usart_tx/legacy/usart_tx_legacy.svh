@@ -11,18 +11,29 @@ function void legacy_sync_mode_state_machine();
 			end
 		end
 		FSM_CS: begin
-			next_usart_state = FSM_CLOCK_ALIGN;
+			case (CLOCK_POLARITY) 
+				CPOL_0: begin
+					next_usart_state = FSM_FIRST_BIT_INIT;
+				end
+				CPOL_1: begin
+					next_usart_state = FSM_CLOCK_ALIGN;
+				end
+			endcase
 		end
 		FSM_CLOCK_ALIGN: begin
 			next_usart_state = FSM_FIRST_BIT_INIT;
+			enable_sync_clock_driver = 1;
 		end
 		FSM_FIRST_BIT_INIT: begin
 			next_usart_state = FSM_START;
+			enable_sync_clock_driver = 1;
 		end
 		FSM_START: begin
 			next_usart_state = FSM_DATA;
+			enable_sync_clock_driver = 1;
 		end
 		FSM_DATA: begin
+			enable_sync_clock_driver = 1;
 			if (bit_index == 3'd7) begin
 				next_usart_state = FSM_DATA;
 				case (PARITY)
@@ -36,10 +47,12 @@ function void legacy_sync_mode_state_machine();
 			end
 		end
 		FSM_PARITY: begin
+			enable_sync_clock_driver = 1;
 			next_usart_state = FSM_STOP;
 		end
 		FSM_STOP: begin
 			next_usart_state = FSM_IDLE;
+			enable_sync_clock_driver = 1;
 		end
 	endcase
 endfunction
@@ -57,6 +70,7 @@ function void legacy_synchronous_tx();
 	end
 	case (usart_state) 
 		FSM_IDLE: begin
+			clock_counter <= '0;
 			usart_tx_o <= 1'd1;
 			chip_select_registers_o <= '{default:1'd1};
 		end
