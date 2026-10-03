@@ -8,6 +8,9 @@ package usart_types_pkg;
 	
 	typedef enum logic [2:0] {
 		FSM_IDLE,
+		FSM_CS,
+		FSM_CLOCK_ALIGN,
+		FSM_FIRST_BIT_INIT,
 		FSM_START,
 		FSM_DATA,
 		FSM_PARITY,
