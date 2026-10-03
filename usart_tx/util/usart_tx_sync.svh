@@ -6,7 +6,7 @@ function void sync_shift_bit(logic value);
 		{CPOL_0, CPHA_1}: begin
 			if (sync_clock_rising_edge) shift_bit_on_tx_o(value);
 		end
-		{CPOL_0, CPHA_1}: begin
+		{CPOL_1, CPHA_0}: begin
 			if (sync_clock_rising_edge) shift_bit_on_tx_o(value);
 		end
 		{CPOL_1, CPHA_1}: begin
@@ -16,7 +16,7 @@ function void sync_shift_bit(logic value);
 endfunction
 
 function void set_clock_polarity_during_idle();
-	if (usart_state == FSM_IDLE) begin
+	if (!enable_sync_clock_driver) begin
 		case (CLOCK_POLARITY)
 			CPOL_0: begin
 				usart_tx_clock_o <= '0;
@@ -29,7 +29,7 @@ function void set_clock_polarity_during_idle();
 endfunction
 
 function void synchronous_clock_driver();
-	if (usart_state >= FSM_START) begin
+	if (enable_sync_clock_driver) begin
 		if (clock_counter < CLOCKS_PER_BIT / 2'd2) begin
 			clock_counter <= clock_counter + 1'd1;
 		end else begin
